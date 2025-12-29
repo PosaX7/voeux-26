@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Vœux 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a1a;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100vh;
+            display: block;
+        }
+
+        .star-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00d4aa, #00a8e8);
+            border: none;
+            cursor: pointer;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            box-shadow: 0 8px 20px rgba(0, 168, 232, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .star-button:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 12px 30px rgba(0, 168, 232, 0.7);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00d4aa;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .modal-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #00d4aa, #00a8e8);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .share-section {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 10px;
+        }
+
+        .share-section.active {
+            display: block;
+        }
+
+        .share-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .link-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .link-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn-copy {
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #45a049;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn-download:hover {
+            background: #1976D2;
+        }
+
+        @media (max-width: 600px) {
+            .star-button {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .modal-content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+
+    <button class="star-button" onclick="openModal()">✨</button>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2>🎉 Personnaliser votre carte</h2>
+            <div class="input-group">
+                <label for="nameInput">Votre nom :</label>
+                <input type="text" id="nameInput" placeholder="Entrez votre nom" value="">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+                <button class="btn-confirm" onclick="generatePersonalizedLink()">Générer</button>
+            </div>
+            
+            <div class="share-section" id="shareSection">
+                <h3>📤 Partagez votre carte</h3>
+                <div class="link-box">
+                    <input type="text" id="personalLink" readonly>
+                    <button class="btn-copy" onclick="copyLink()">Copier</button>
+                </div>
+                <button class="btn-download" onclick="downloadGif()">📥 Télécharger en GIF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let currentName = 'Dufond';
+
+        // Récupérer le nom depuis l'URL si présent
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('nom')) {
+            currentName = decodeURIComponent(urlParams.get('nom'));
+        }
+
+        class Particle {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                
+                if (type === 'firework') {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 2 + Math.random() * 4;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.life = 1;
+                    this.decay = 0.015 + Math.random() * 0.015;
+                    this.color = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'][Math.floor(Math.random() * 6)];
+                    this.size = 3;
+                } else if (type === 'star') {
+                    this.twinkle = Math.random() * Math.PI * 2;
+                    this.twinkleSpeed = 0.05 + Math.random() * 0.05;
+                } else if (type === 'confetti') {
+                    this.vy = 2 + Math.random() * 2;
+                    this.vx = (Math.random() - 0.5) * 2;
+                    this.rotation = Math.random() * Math.PI * 2;
+                    this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+                    this.color = ['#ffd700', '#ff69b4', '#00ff00', '#00bfff', '#ff4500'][Math.floor(Math.random() * 5)];
+                }
+            }
+
+            update() {
+                if (this.type === 'firework') {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += 0.1;
+                    this.life -= this.decay;
+                    return this.life > 0;
+                } else if (this.type === 'star') {
+                    this.twinkle += this.twinkleSpeed;
+                    return true;
+                } else if (this.type === 'confetti') {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.rotation += this.rotationSpeed;
+                    return this.y < 650;
+                }
+            }
+
+            draw(ctx) {
+                if (this.type === 'firework') {
+                    ctx.globalAlpha = this.life;
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                } else if (this.type === 'star') {
+                    const opacity = 0.3 + Math.sin(this.twinkle) * 0.4;
+                    ctx.globalAlpha = opacity;
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                } else if (this.type === 'confetti') {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation);
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-5, -5, 10, 10);
+                    ctx.restore();
+                }
+            }
+        }
+
+        let particles = [];
+
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle(
+                Math.random() * 600,
+                Math.random() * 600,
+                'star'
+            ));
+        }
+
+        function createFirework() {
+            const x = 100 + Math.random() * 400;
+            const y = 100 + Math.random() * 300;
+            for (let i = 0; i < 25; i++) {
+                particles.push(new Particle(x, y, 'firework'));
+            }
+        }
+
+        function createConfetti() {
+            particles.push(new Particle(
+                Math.random() * 600,
+                -10,
+                'confetti'
+            ));
+        }
+
+        function drawText(name) {
+            const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+            gradient.addColorStop(0, '#0a0e27');
+            gradient.addColorStop(0.5, '#1a1d3f');
+            gradient.addColorStop(1, '#2d1b4e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 600);
+
+            particles = particles.filter(p => p.update());
+            particles.forEach(p => p.draw(ctx));
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.font = 'bold 52px Georgia';
+            ctx.fillStyle = '#ffd700';
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.fillText('Heureuse Année 2026', 300, 220);
+
+            ctx.font = 'bold 42px Georgia';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+            ctx.shadowBlur = 15;
+            ctx.fillText('Meilleurs Vœux', 300, 300);
+
+            ctx.font = 'italic 32px Georgia';
+            ctx.fillStyle = '#ffd700';
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+            ctx.shadowBlur = 10;
+            ctx.fillText(`De la part de ${name}`, 300, 380);
+
+            ctx.shadowBlur = 0;
+        }
+
+        function animate() {
+            drawText(currentName);
+            
+            if (Math.random() < 0.03) {
+                createFirework();
+            }
+            
+            if (Math.random() < 0.15) {
+                createConfetti();
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('nameInput').value = currentName;
+            document.getElementById('shareSection').classList.remove('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function generatePersonalizedLink() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                alert('Veuillez entrer un nom');
+                return;
+            }
+            
+            currentName = name;
+            const baseUrl = window.location.origin + window.location.pathname;
+            const personalizedUrl = `${baseUrl}?nom=${encodeURIComponent(name)}`;
+            
+            document.getElementById('personalLink').value = personalizedUrl;
+            document.getElementById('shareSection').classList.add('active');
+            
+            // Mettre à jour l'URL sans recharger la page
+            window.history.pushState({}, '', personalizedUrl);
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('personalLink');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copié !';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        function downloadGif() {
+            const button = event.target;
+            button.textContent = '⏳ Création du GIF...';
+            button.disabled = true;
+
+            const gif = new GIF({
+                workers: 4,
+                quality: 15,
+                width: 600,
+                height: 600,
+                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+            });
+
+            particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle(
+                    Math.random() * 600,
+                    Math.random() * 600,
+                    'star'
+                ));
+            }
+
+            const totalFrames = 45;
+            let currentFrame = 0;
+
+            function captureFrame() {
+                drawText(currentName);
+
+                if (currentFrame % 10 === 0) createFirework();
+                if (currentFrame % 3 === 0) createConfetti();
+
+            // 👉 IMPORTANT : on capture le CANVAS et non le contexte
+            gif.addFrame(canvas, { copy: true, delay: 66 });
+
+            currentFrame++;
+
+            if (currentFrame < totalFrames) {
+                requestAnimationFrame(captureFrame);
+            } else {
+                gif.render();
+            }
+        }
+
+            gif.on('finished', function (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `voeux-2026-${currentName}.gif`;
+                a.click();
+            URL.revokeObjectURL(url);
+
+            button.textContent = '✅ GIF téléchargé !';
+            setTimeout(() => {
+                button.textContent = '📥 Télécharger en GIF';
+                button.disabled = false;
+            }, 2000);
+
+            particles = particles.filter(p => p.type === 'star');
+        });
+
+        captureFrame();
+}
+
+        animate();
+    </script>
+</body>
+</html>
