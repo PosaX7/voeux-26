@@ -25,11 +25,12 @@
             justify-content: center;
             align-items: center;
             background: #1a1a1a;
+            padding: 0;
         }
 
         canvas {
-            max-width: 100%;
-            max-height: 100vh;
+            width: 100vw;
+            height: 100vh;
             display: block;
         }
 
@@ -57,6 +58,31 @@
         .star-button:hover {
             transform: scale(1.1) rotate(15deg);
             box-shadow: 0 12px 30px rgba(0, 168, 232, 0.7);
+        }
+
+        .share-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            cursor: pointer;
+            border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 1000;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .share-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 107, 107, 0.7);
         }
 
         .modal {
@@ -161,27 +187,80 @@
             color: #333;
         }
 
-        .share-section {
-            display: none;
-            margin-top: 25px;
+        .share-modal-content h2 {
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .share-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-option.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+        }
+
+        .share-option.facebook {
+            background: linear-gradient(135deg, #1877F2, #0C63D4);
+        }
+
+        .share-option.telegram {
+            background: linear-gradient(135deg, #0088cc, #006699);
+        }
+
+        .share-option.twitter {
+            background: linear-gradient(135deg, #1DA1F2, #0C85D0);
+        }
+
+        .share-option .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .share-option .label {
+            font-size: 14px;
+        }
+
+        .copy-link-section {
+            margin-top: 20px;
             padding: 20px;
             background: #f8f8f8;
             border-radius: 10px;
         }
 
-        .share-section.active {
-            display: block;
-        }
-
-        .share-section h3 {
+        .copy-link-section h3 {
             margin-bottom: 15px;
             color: #333;
+            font-size: 1.1rem;
         }
 
         .link-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
         }
 
         .link-box input {
@@ -207,22 +286,22 @@
             background: #45a049;
         }
 
-        .btn-download {
+        .btn-close {
             width: 100%;
             padding: 15px;
-            background: #2196F3;
-            color: white;
+            background: #e0e0e0;
+            color: #333;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 20px;
             transition: background 0.3s;
         }
 
-        .btn-download:hover {
-            background: #1976D2;
+        .btn-close:hover {
+            background: #d0d0d0;
         }
 
         @media (max-width: 600px) {
@@ -232,21 +311,34 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .share-button {
+                bottom: 20px;
+                left: 20px;
+                padding: 12px 20px;
+                font-size: 16px;
+            }
             
             .modal-content {
                 padding: 25px;
+            }
+
+            .share-options {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="canvas-container">
-        <canvas id="canvas" width="600" height="600"></canvas>
+        <canvas id="canvas"></canvas>
     </div>
 
-    <button class="star-button" onclick="openModal()">✨</button>
+    <button class="star-button" onclick="openPersonalizeModal()">✨</button>
+    <button class="share-button" onclick="openShareModal()">📤 Partager</button>
 
-    <div class="modal" id="modal">
+    <!-- Modal de personnalisation -->
+    <div class="modal" id="personalizeModal">
         <div class="modal-content">
             <h2>🎉 Personnaliser votre carte</h2>
             <div class="input-group">
@@ -254,27 +346,61 @@
                 <input type="text" id="nameInput" placeholder="Entrez votre nom" value="">
             </div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-                <button class="btn-confirm" onclick="generatePersonalizedLink()">Générer</button>
-            </div>
-            
-            <div class="share-section" id="shareSection">
-                <h3>📤 Partagez votre carte</h3>
-                <div class="link-box">
-                    <input type="text" id="personalLink" readonly>
-                    <button class="btn-copy" onclick="copyLink()">Copier</button>
-                </div>
-                <button class="btn-download" onclick="downloadGif()">📥 Télécharger en GIF</button>
+                <button class="btn-cancel" onclick="closePersonalizeModal()">Annuler</button>
+                <button class="btn-confirm" onclick="saveName()">Enregistrer</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <!-- Modal de partage -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content share-modal-content">
+            <h2>📤 Partager votre carte</h2>
+            <div class="share-options">
+                <a href="#" class="share-option whatsapp" onclick="shareOnWhatsApp(event)">
+                    <div class="icon">💬</div>
+                    <div class="label">WhatsApp</div>
+                </a>
+                <a href="#" class="share-option facebook" onclick="shareOnFacebook(event)">
+                    <div class="icon">👥</div>
+                    <div class="label">Facebook</div>
+                </a>
+                <a href="#" class="share-option telegram" onclick="shareOnTelegram(event)">
+                    <div class="icon">✈️</div>
+                    <div class="label">Telegram</div>
+                </a>
+                <a href="#" class="share-option twitter" onclick="shareOnTwitter(event)">
+                    <div class="icon">🐦</div>
+                    <div class="label">Twitter</div>
+                </a>
+            </div>
+            
+            <div class="copy-link-section">
+                <h3>🔗 Ou copiez le lien</h3>
+                <div class="link-box">
+                    <input type="text" id="shareLink" readonly>
+                    <button class="btn-copy" onclick="copyLink()">Copier</button>
+                </div>
+            </div>
+            
+            <button class="btn-close" onclick="closeShareModal()">Fermer</button>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let animationId;
         let currentName = 'Dufond';
+
+        // Adapter le canvas à la taille de l'écran
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
         // Récupérer le nom depuis l'URL si présent
         const urlParams = new URLSearchParams(window.location.search);
@@ -323,7 +449,7 @@
                     this.x += this.vx;
                     this.y += this.vy;
                     this.rotation += this.rotationSpeed;
-                    return this.y < 650;
+                    return this.y < canvas.height + 50;
                 }
             }
 
@@ -356,17 +482,24 @@
 
         let particles = [];
 
-        for (let i = 0; i < 80; i++) {
-            particles.push(new Particle(
-                Math.random() * 600,
-                Math.random() * 600,
-                'star'
-            ));
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    'star'
+                ));
+            }
         }
 
+        initParticles();
+        window.addEventListener('resize', initParticles);
+
         function createFirework() {
-            const x = 100 + Math.random() * 400;
-            const y = 100 + Math.random() * 300;
+            const x = canvas.width * 0.2 + Math.random() * canvas.width * 0.6;
+            const y = canvas.height * 0.2 + Math.random() * canvas.height * 0.4;
             for (let i = 0; i < 25; i++) {
                 particles.push(new Particle(x, y, 'firework'));
             }
@@ -374,19 +507,19 @@
 
         function createConfetti() {
             particles.push(new Particle(
-                Math.random() * 600,
+                Math.random() * canvas.width,
                 -10,
                 'confetti'
             ));
         }
 
         function drawText(name) {
-            const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, '#0a0e27');
             gradient.addColorStop(0.5, '#1a1d3f');
             gradient.addColorStop(1, '#2d1b4e');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 600, 600);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             particles = particles.filter(p => p.update());
             particles.forEach(p => p.draw(ctx));
@@ -394,23 +527,27 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            ctx.font = 'bold 52px Georgia';
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = Math.min(canvas.width / 600, canvas.height / 600);
+
+            ctx.font = `bold ${50 * scale}px Georgia`;
             ctx.fillStyle = '#ffd700';
             ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
             ctx.shadowBlur = 20;
-            ctx.fillText('Heureuse Année 2026', 300, 220);
+            ctx.fillText('Heureuse Année 2026', centerX, centerY - 100 * scale);
 
-            ctx.font = 'bold 42px Georgia';
+            ctx.font = `bold ${50 * scale}px Georgia`;
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
             ctx.shadowBlur = 15;
-            ctx.fillText('Meilleurs Vœux', 300, 300);
+            ctx.fillText('Meilleurs Vœux', centerX, centerY);
 
-            ctx.font = 'italic 32px Georgia';
+            ctx.font = `italic ${38 * scale}px Georgia`;
             ctx.fillStyle = '#ffd700';
             ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
             ctx.shadowBlur = 10;
-            ctx.fillText(`De la part de ${name}`, 300, 380);
+            ctx.fillText(`De la part de ${name}`, centerX, centerY + 100 * scale);
 
             ctx.shadowBlur = 0;
         }
@@ -429,17 +566,16 @@
             animationId = requestAnimationFrame(animate);
         }
 
-        function openModal() {
-            document.getElementById('modal').classList.add('active');
+        function openPersonalizeModal() {
+            document.getElementById('personalizeModal').classList.add('active');
             document.getElementById('nameInput').value = currentName;
-            document.getElementById('shareSection').classList.remove('active');
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
+        function closePersonalizeModal() {
+            document.getElementById('personalizeModal').classList.remove('active');
         }
 
-        function generatePersonalizedLink() {
+        function saveName() {
             const name = document.getElementById('nameInput').value.trim();
             if (!name) {
                 alert('Veuillez entrer un nom');
@@ -449,16 +585,56 @@
             currentName = name;
             const baseUrl = window.location.origin + window.location.pathname;
             const personalizedUrl = `${baseUrl}?nom=${encodeURIComponent(name)}`;
-            
-            document.getElementById('personalLink').value = personalizedUrl;
-            document.getElementById('shareSection').classList.add('active');
-            
-            // Mettre à jour l'URL sans recharger la page
             window.history.pushState({}, '', personalizedUrl);
+            
+            closePersonalizeModal();
+        }
+
+        function openShareModal() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?nom=${encodeURIComponent(currentName)}`;
+            document.getElementById('shareLink').value = shareUrl;
+            document.getElementById('shareModal').classList.add('active');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+
+        function getShareUrl() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            return `${baseUrl}?nom=${encodeURIComponent(currentName)}`;
+        }
+
+        function shareOnWhatsApp(event) {
+            event.preventDefault();
+            const url = getShareUrl();
+            const text = `🎉 Heureuse Année 2026! Découvrez ma carte de vœux personnalisée : ${url}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareOnFacebook(event) {
+            event.preventDefault();
+            const url = getShareUrl();
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function shareOnTelegram(event) {
+            event.preventDefault();
+            const url = getShareUrl();
+            const text = '🎉 Heureuse Année 2026! Découvrez ma carte de vœux personnalisée';
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareOnTwitter(event) {
+            event.preventDefault();
+            const url = getShareUrl();
+            const text = '🎉 Heureuse Année 2026! Découvrez ma carte de vœux personnalisée';
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function copyLink() {
-            const linkInput = document.getElementById('personalLink');
+            const linkInput = document.getElementById('shareLink');
             linkInput.select();
             document.execCommand('copy');
             
@@ -469,69 +645,6 @@
                 btn.textContent = originalText;
             }, 2000);
         }
-
-        function downloadGif() {
-            const button = event.target;
-            button.textContent = '⏳ Création du GIF...';
-            button.disabled = true;
-
-            const gif = new GIF({
-                workers: 4,
-                quality: 15,
-                width: 600,
-                height: 600,
-                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-            });
-
-            particles = [];
-            for (let i = 0; i < 80; i++) {
-                particles.push(new Particle(
-                    Math.random() * 600,
-                    Math.random() * 600,
-                    'star'
-                ));
-            }
-
-            const totalFrames = 45;
-            let currentFrame = 0;
-
-            function captureFrame() {
-                drawText(currentName);
-
-                if (currentFrame % 10 === 0) createFirework();
-                if (currentFrame % 3 === 0) createConfetti();
-
-            // 👉 IMPORTANT : on capture le CANVAS et non le contexte
-            gif.addFrame(canvas, { copy: true, delay: 66 });
-
-            currentFrame++;
-
-            if (currentFrame < totalFrames) {
-                requestAnimationFrame(captureFrame);
-            } else {
-                gif.render();
-            }
-        }
-
-            gif.on('finished', function (blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `voeux-2026-${currentName}.gif`;
-                a.click();
-            URL.revokeObjectURL(url);
-
-            button.textContent = '✅ GIF téléchargé !';
-            setTimeout(() => {
-                button.textContent = '📥 Télécharger en GIF';
-                button.disabled = false;
-            }, 2000);
-
-            particles = particles.filter(p => p.type === 'star');
-        });
-
-        captureFrame();
-}
 
         animate();
     </script>
